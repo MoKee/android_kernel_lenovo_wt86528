@@ -302,9 +302,7 @@ static void msm8x16_ext_spk_delayed_enable(struct work_struct *work)
     /* Open external audio PA device */
     for(i = 0; i < AW8155A_MODE; i++) {
         gpio_direction_output(EXT_SPK_AMP_GPIO, false);
-		gpio_direction_output(EXT_SPK_AMP_GPIO_1, false);
         gpio_direction_output(EXT_SPK_AMP_GPIO, true);
-		gpio_direction_output(EXT_SPK_AMP_GPIO_1, true);
     }
     usleep_range(EXT_CLASS_D_EN_DELAY,
         EXT_CLASS_D_EN_DELAY + EXT_CLASS_D_DELAY_DELTA);
@@ -322,10 +320,8 @@ static void msm8x16_ext_spk_delayed_dualmode(struct work_struct *work)
 
     for(i = 0; i < AW8155A_MODE; i++) {
         gpio_direction_output(EXT_SPK_AMP_GPIO, false);
-		gpio_direction_output(EXT_SPK_AMP_GPIO, false);
-        gpio_direction_output(EXT_SPK_AMP_GPIO_1, true);
-		gpio_direction_output(EXT_SPK_AMP_GPIO_1, true);
-    }    
+        gpio_direction_output(EXT_SPK_AMP_GPIO, true);
+    }
     usleep_range(EXT_CLASS_D_EN_DELAY,
         EXT_CLASS_D_EN_DELAY + EXT_CLASS_D_DELAY_DELTA);
 
@@ -344,13 +340,11 @@ static void msm8x16_ext_spk_control(u32 enable)
 {
     if (enable) {
         gpio_direction_output(EXT_SPK_AMP_GPIO, enable);
-		gpio_direction_output(EXT_SPK_AMP_GPIO_1, enable);
         /* time takes enable the external power amplifier */
         usleep_range(EXT_CLASS_D_EN_DELAY,
             EXT_CLASS_D_EN_DELAY + EXT_CLASS_D_DELAY_DELTA);
     } else {
         gpio_direction_output(EXT_SPK_AMP_GPIO, enable);
-		gpio_direction_output(EXT_SPK_AMP_GPIO_1, enable);
         /* time takes disable the external power amplifier */
         usleep_range(EXT_CLASS_D_DIS_DELAY,
             EXT_CLASS_D_DIS_DELAY + EXT_CLASS_D_DELAY_DELTA);
