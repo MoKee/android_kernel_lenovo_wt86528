@@ -195,9 +195,7 @@ static enum power_supply_property msm_batt_power_props[] = {
 	POWER_SUPPLY_PROP_CHARGE_TYPE,
 	POWER_SUPPLY_PROP_HEALTH,
 	POWER_SUPPLY_PROP_PRESENT,
-	#if defined WT_USE_FAN54015
 	POWER_SUPPLY_PROP_TECHNOLOGY,
-	#endif
 	POWER_SUPPLY_PROP_VOLTAGE_MAX_DESIGN,
 	POWER_SUPPLY_PROP_VOLTAGE_MIN_DESIGN,
 	POWER_SUPPLY_PROP_VOLTAGE_NOW,
@@ -1452,13 +1450,13 @@ static int get_prop_capacity(struct qpnp_lbc_chip *chip)
 {
 	union power_supply_propval ret = {0,};
 	int soc, battery_status, charger_in;
-	int current_now, voltage_now, charge_type;
-	
+
 	if (chip->fake_battery_soc >= 0)
 		return chip->fake_battery_soc;
 
 	if (chip->cfg_use_fake_battery || !get_prop_batt_present(chip))
 		return DEFAULT_CAPACITY;
+
 
 	if (chip->bms_psy) {
 		chip->bms_psy->get_property(chip->bms_psy,
@@ -1492,26 +1490,6 @@ static int get_prop_capacity(struct qpnp_lbc_chip *chip)
 			//printk(KERN_WARNING  "~SOC_TurnOn CHGR \n"); //add by maxwill
 			qpnp_lbc_charger_enable(chip, SOC, 1);
 		}
-		// +bug290025 xuecheng.wt modify for yizhi99% 20140925	
-#if 1
-		charge_type = get_prop_charge_type(chip);
-		voltage_now = get_prop_battery_voltage_now(chip);
-		current_now = get_prop_current_now(chip);
-				if (battery_status == POWER_SUPPLY_STATUS_FULL 
-			&& charge_type == POWER_SUPPLY_CHARGE_TYPE_FAST
-			&& charger_in 
-			&& ret.intval == 100 
-			&& current_now > -90000 
-			&& voltage_now > 4340000) 
-		{
-			pr_info("qpnp-linear :disable charger ! ---------------------------\n");
-			if(chip->chg_done == false)
-				chip->chg_done = true;
-			qpnp_lbc_charger_enable(chip, SOC, 0);
-		}
-
-#endif
-		//-bug290025 xuecheng.wt modify for yizhi99% 20140925	
 		mutex_unlock(&chip->chg_enable_lock);
 
 		soc = ret.intval;
@@ -1837,11 +1815,7 @@ static int qpnp_batt_power_set_property(struct power_supply *psy,
 			switch (val->intval) {
 			case POWER_SUPPLY_STATUS_CHARGING:
 				chip->chg_done = false;
-				#if defined WT_USE_FAN54015
-				pr_debug("~resuming charging by bms\n");//wangfuqiang note this log should exist;
-				#else
-				pr_debug("resuming charging by bms\n");
-				#endif
+				pr_debug("~resuming charging by bms\n");//wangfuqiang note this log should exist
 				if (!chip->cfg_disable_vbatdet_based_recharge)
 					qpnp_lbc_vbatdet_override(chip,
 								OVERRIDE_0);
@@ -1946,11 +1920,9 @@ static int qpnp_batt_power_get_property(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_PRESENT:
 		val->intval = get_prop_batt_present(chip);
 		break;
-	#if defined WT_USE_FAN54015
 	case POWER_SUPPLY_PROP_TECHNOLOGY:
 		val->intval = POWER_SUPPLY_TECHNOLOGY_LION;
 		break;
-	#endif
 	case POWER_SUPPLY_PROP_VOLTAGE_MAX_DESIGN:
 		val->intval = chip->cfg_max_voltage_mv * 1000;
 		break;
@@ -2143,11 +2115,7 @@ static void qpnp_lbc_jeita_adc_notification(enum qpnp_tm_state state, void *ctx)
 
 	temp = get_prop_batt_temp(chip);
 
-	#if defined WT_USE_FAN54015
 	pr_info("\n~temp = %d state = %s\n", temp,
-	#else
-	pr_debug("temp = %d state = %s\n", temp,
-	#endif
 			state == ADC_TM_WARM_STATE ? "warm" : "cool");
 
 	if (state == ADC_TM_WARM_STATE) {
@@ -3180,11 +3148,7 @@ exit:
 }
 
 //+bug, wanggongzhen.wt,add code , 2014-10-9 , alarm should remove when charger removed.
-#if defined WT_USE_FAN54015
 static int disable_software_temp_monitor = 0xFF;   //0: Normal Mode    1: TurnOff BTC Mode   2: Charge Current Control Mode       
-#else
-static int disable_software_temp_monitor = 0;
-#endif
 int dis_sof_temp_monitor_set(const char *val, const struct kernel_param *kp)
 {
     //+NewFeature,mahao.wt,ADD,2015.6.20,for charge current control to decrease temperature

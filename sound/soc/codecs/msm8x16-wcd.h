@@ -34,6 +34,10 @@
 #define MSM8X16_TOMBAK_LPASS_DIGCODEC_CBCR			0x0181C0B0
 #define MSM8X16_TOMBAK_LPASS_DIGCODEC_AHB_CBCR			0x0181C0B4
 
+#define EXT_SPK_AMP_GPIO    (902+119)
+#define EXT_SPK_AMP_GPIO_1    (902+121)
+#define EXT_SPK_AMP_HEADSET_GPIO    (902+120)
+
 #define MSM8X16_CODEC_NAME "msm8x16_wcd_codec"
 
 #define MSM8X16_WCD_IS_DIGITAL_REG(reg) \
@@ -49,9 +53,6 @@
 
 #define NUM_DECIMATORS	2
 #define MSM89XX_VDD_SPKDRV_NAME "cdc-vdd-spkdrv"
-#define EXT_SPK_AMP_GPIO    (902+119)
-//#define EXT_SPK_AMP_GPIO_1    (902+117)
-#define EXT_SPK_AMP_HEADSET_GPIO    (902+120)
 
 extern const u8 msm8x16_wcd_reg_readable[MSM8X16_WCD_CACHE_SIZE];
 extern const u8 msm8x16_wcd_reg_readonly[MSM8X16_WCD_CACHE_SIZE];

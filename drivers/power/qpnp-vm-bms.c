@@ -1513,12 +1513,9 @@ static void check_recharge_condition(struct qpnp_bms_chip *chip)
 	int rc;
 	union power_supply_propval ret = {0,};    
 	int status = get_battery_status(chip);
-	#if defined WT_USE_FAN54015
-		printk(KERN_WARNING  "~ Recharge_check: status=%d chip->last_soc=%d chip->eoc_reported=%d  \n",status,chip->last_soc,chip->eoc_reported);  //add by maxwill
-	#else
-		// printk(KERN_WARNING  "~ Recharge_check: status=%d chip->last_soc=%d chip->eoc_reported=%d  \n",status,chip->last_soc,chip->eoc_reported);  //add by maxwill
-	#endif
-	
+
+	printk(KERN_WARNING  "~ Recharge_check: status=%d chip->last_soc=%d chip->eoc_reported=%d  \n",status,chip->last_soc,chip->eoc_reported);  //add by maxwill
+
 	if (chip->last_soc > chip->dt.cfg_soc_resume_limit)
 		return;
 
@@ -1549,9 +1546,7 @@ static void check_recharge_condition(struct qpnp_bms_chip *chip)
 			pr_info("soc dropped below resume_soc soc=%d resume_soc=%d, restart charging\n",
 					chip->last_soc,
 					chip->dt.cfg_soc_resume_limit);
-			#if defined WT_USE_FAN54015
-					    if(get_battery_status(chip)==POWER_SUPPLY_STATUS_CHARGING) //BUG,mahao.wt,ADD,2015.7.21,Do Not clear eoc_reported if fan54015 not in charging status     
-			#endif
+		    if(get_battery_status(chip)==POWER_SUPPLY_STATUS_CHARGING) //BUG,mahao.wt,ADD,2015.7.21,Do Not clear eoc_reported if fan54015 not in charging status     
 			chip->eoc_reported = false;
 		}
 	}
@@ -1831,13 +1826,7 @@ static int report_vm_bms_soc(struct qpnp_bms_chip *chip)
 			FakeBatteryReport=false;
 		}
         #endif
-	//Porting FAN54O15,IsaacChen,ADD,2017.1.19
-	#if defined WT_USE_FAN54015
-		printk(KERN_WARNING  "~ soc=%d chip->last_soc=%d charging=%d\n ",soc,chip->last_soc,charging);	
-	#else
-		//printk(KERN_WARNING  "~ soc=%d chip->last_soc=%d chip->dt.cfg_soc_resume_limit=%d \n ",soc,chip->last_soc,chip->dt.cfg_soc_resume_limit);	
-	#endif
-	//Porting FAN54015,IsaacChen,ADD,2017.1.19
+   printk(KERN_WARNING  "~ soc=%d chip->last_soc=%d charging=%d\n ",soc,chip->last_soc,charging);	
    //-NewFeature,mahao.wt,ADD,2015.3.16,add Fan54015 driver
 	
 	if ((soc != chip->last_soc) || (soc == 100)) {    
@@ -2619,11 +2608,7 @@ static void qpnp_vm_bms_ext_power_changed(struct power_supply *psy)
 
 	pr_debug("Triggered!\n");
 	battery_status_check(chip);
-	#if defined WT_USE_FAN54015
-		//battery_insertion_check(chip);//BUG,Hopper.wt,DEL,2015.7.16,To resolve SOC jump in DropDown test
-	#else
-		battery_insertion_check(chip);
-	#endif
+	//battery_insertion_check(chip);//BUG,Hopper.wt,DEL,2015.7.16,To resolve SOC jump in DropDown test
 
 	if (chip->reported_soc_in_use)
 		reported_soc_check_status(chip);
@@ -2947,9 +2932,6 @@ static int read_shutdown_ocv_soc(struct qpnp_bms_chip *chip)
 	pr_debug("shutdown_ocv=%d shutdown_soc=%d\n",
 			chip->shutdown_ocv, chip->shutdown_soc);
 
-	#ifdef SW_FG_DEBUG
-               printk(KERN_WARNING  "~SD_soc=%d\n", chip->shutdown_soc);
-	#endif
 
 	return 0;
 }
